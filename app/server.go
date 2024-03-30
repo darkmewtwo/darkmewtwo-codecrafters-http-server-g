@@ -23,6 +23,14 @@ func handleConnection(conn net.Conn) {
 	if req_parts[1] == "/" {
 		response = []byte("HTTP/1.1 200 OK\r\nContent-Length: 13\r\nContent-Type: text/plain\r\n\r\nHello, world!")
 
+	} else if strings.HasPrefix(req_parts[1], "/echo/") {
+		path := strings.Split(req_parts[1], "/")
+		resource := path[len(path)-1]
+		// fmt.Println(resource)
+		res_len := len(resource)
+		message := "HTTP/1.1 200 OK\r\nContent-Length:" + fmt.Sprint(res_len) + "\r\nContent-Type: text/plain\r\n\r\n" + resource
+		response = []byte(message)
+
 	} else {
 		response = []byte("HTTP/1.1 404 Not Found\r\nContent-Length: 11\r\nContent-Type: text/plain\r\n\r\nNot Found")
 
