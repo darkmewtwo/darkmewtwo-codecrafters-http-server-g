@@ -2,10 +2,37 @@ package main
 
 import (
 	"fmt"
+	"strings"
+
 	// Uncomment this block to pass the first stage
 	"net"
 	"os"
 )
+
+func handleConnection(conn net.Conn) {
+
+	var response []byte
+	buffer := make([]byte, 1024)
+	buffN, _ := conn.Read(buffer)
+
+	// fmt.Println(buffN)
+	request := string(buffer[:buffN])
+	// fmt.Println("REQUEST: ", request)
+	req_parts := strings.Split(request, " ")
+	// fmt.Println(req_parts, reflect.TypeOf(req_parts), req_parts[1])
+	if req_parts[1] == "/" {
+		response = []byte("HTTP/1.1 200 OK\r\nContent-Length: 13\r\nContent-Type: text/plain\r\n\r\nHello, world!")
+
+	} else {
+		response = []byte("HTTP/1.1 404 Not Found\r\nContent-Length: 11\r\nContent-Type: text/plain\r\n\r\nNot Found")
+
+	}
+	_, res_err := conn.Write(response)
+	if res_err != nil {
+		fmt.Println("Error sending data", res_err.Error())
+	}
+	// return response
+}
 
 func main() {
 	// You can use print statements as follows for debugging, they'll be visible when running tests.
@@ -13,21 +40,22 @@ func main() {
 
 	// Uncomment this block to pass the first stage
 	//
-	l, err := net.Listen("tcp", "0.0.0.0:4221")
+	listener, err := net.Listen("tcp", "0.0.0.0:4221")
 	if err != nil {
 		fmt.Println("Failed to bind to port 4221")
 		os.Exit(1)
 	}
 	//
-	conn, con_err := l.Accept()
-	if con_err != nil {
-		fmt.Println("Error accepting connection: ", err.Error())
-		os.Exit(1)
-	}
-	response := []byte("HTTP/1.1 200 OK\r\n\r\n")
-	_, res_err := conn.Write(response)
-	if res_err != nil {
-		fmt.Println("Error sending data", res_err.Error())
-	}
+	defer listener.Close()
+	for {
+		conn, con_err := listener.Accept()
+		if con_err != nil {
+			fmt.Println("Error accepting connection: ", err.Error())
+			os.Exit(1)
+		}
+		// response := []byte("HTTP/1.1 200 OK\r\n\r\n test output")
+		handleConnection(conn)
 
+		conn.Close()
+	}
 }
