@@ -24,7 +24,7 @@ func handleConnection(conn net.Conn) {
 		response = []byte("HTTP/1.1 200 OK\r\nContent-Length: 13\r\nContent-Type: text/plain\r\n\r\nHello, world!")
 
 	} else if strings.HasPrefix(req_parts[1], "/echo/") {
-		path := strings.Split(req_parts[1], "/")
+		path := strings.Split(req_parts[1], "/echo/")
 		resource := path[len(path)-1]
 		// fmt.Println(resource)
 		res_len := len(resource)
