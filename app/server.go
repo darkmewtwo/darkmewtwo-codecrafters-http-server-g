@@ -32,7 +32,7 @@ func handleConnection(conn net.Conn, directory string) {
 	request := string(buffer[:buffN])
 	// fmt.Println("REQUEST: ", request)
 	req_parts := strings.Split(request, "\r\n")
-	// fmt.Println(req_parts)
+	fmt.Println(req_parts)
 	req_path_method := strings.Split(req_parts[0], " ")
 	headers := getHeaders(req_parts)
 
@@ -58,14 +58,20 @@ func handleConnection(conn net.Conn, directory string) {
 			response = []byte(message)
 		}
 	} else if strings.HasPrefix(req_path_method[1], "/files") {
-		_, filename, _ := strings.Cut(req_path_method[1], "/files")
-		content, error := os.ReadFile(directory + filename)
-		// fmt.Println(filename, content)
-		if error != nil {
-			response = []byte("HTTP/1.1 404 Not Found\r\nContent-Length: 15\r\nContent-Type: text/plain\r\n\r\nFile Not Found\r\n")
+		_, filename, _ := strings.Cut(req_path_method[1], "/files/")
+		req_method := req_path_method[0]
+		fmt.Println(req_method)
+		if req_method == "POST" {
+
 		} else {
-			message := "HTTP/1.1 200 OK\r\nContent-Length:" + fmt.Sprint(len(string(content))) + "\r\nContent-Type: application/octet-stream\r\n\r\n" + string(content) + "\r\n"
-			response = []byte(message)
+			content, error := os.ReadFile(directory + "/" + filename)
+			// fmt.Println(filename, content)
+			if error != nil {
+				response = []byte("HTTP/1.1 404 Not Found\r\nContent-Length: 15\r\nContent-Type: text/plain\r\n\r\nFile Not Found\r\n")
+			} else {
+				message := "HTTP/1.1 200 OK\r\nContent-Length:" + fmt.Sprint(len(string(content))) + "\r\nContent-Type: application/octet-stream\r\n\r\n" + string(content) + "\r\n"
+				response = []byte(message)
+			}
 		}
 
 	} else {
