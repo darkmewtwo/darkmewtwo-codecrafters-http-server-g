@@ -81,6 +81,7 @@ func main() {
 	}
 	//
 	defer listener.Close()
+	// infinite loop
 	for {
 		conn, con_err := listener.Accept()
 		if con_err != nil {
