@@ -23,7 +23,7 @@ func getHeaders(req_parts []string) map[string]string {
 }
 
 func handleConnection(conn net.Conn) {
-
+	defer conn.Close()
 	var response []byte
 	buffer := make([]byte, 1024)
 	buffN, _ := conn.Read(buffer)
@@ -89,8 +89,7 @@ func main() {
 			os.Exit(1)
 		}
 		// response := []byte("HTTP/1.1 200 OK\r\n\r\n test output")
-		handleConnection(conn)
+		go handleConnection(conn)
 
-		conn.Close()
 	}
 }
