@@ -62,9 +62,9 @@ func handleConnection(conn net.Conn, directory string) {
 		content, error := os.ReadFile(directory + filename)
 		// fmt.Println(filename, content)
 		if error != nil {
-			response = []byte("HTTP/1.1 404 Not Found\r\nContent-Length: 11\r\nContent-Type: text/plain\r\n\r\nFile Found")
+			response = []byte("HTTP/1.1 404 Not Found\r\nContent-Length: 15\r\nContent-Type: text/plain\r\n\r\nFile Not Found\r\n")
 		} else {
-			message := "HTTP/1.1 200 OK\r\nContent-Length:" + fmt.Sprint(len(content)) + "\r\nContent-Type: application/octet-stream\r\n\r\n" + string(content) + "\r\n"
+			message := "HTTP/1.1 200 OK\r\nContent-Length:" + fmt.Sprint(len(string(content))) + "\r\nContent-Type: application/octet-stream\r\n\r\n" + string(content) + "\r\n"
 			response = []byte(message)
 		}
 
