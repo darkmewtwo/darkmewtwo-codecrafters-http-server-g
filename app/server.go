@@ -32,7 +32,7 @@ func handleConnection(conn net.Conn, directory string) {
 	request := string(buffer[:buffN])
 	// fmt.Println("REQUEST: ", request)
 	req_parts := strings.Split(request, "\r\n")
-	fmt.Println(req_parts)
+	// fmt.Println(req_parts)
 	req_path_method := strings.Split(req_parts[0], " ")
 	headers := getHeaders(req_parts)
 
@@ -60,9 +60,16 @@ func handleConnection(conn net.Conn, directory string) {
 	} else if strings.HasPrefix(req_path_method[1], "/files") {
 		_, filename, _ := strings.Cut(req_path_method[1], "/files/")
 		req_method := req_path_method[0]
-		fmt.Println(req_method)
+		// fmt.Println(req_method)
 		if req_method == "POST" {
-
+			body := req_parts[len(req_parts)-1]
+			file, _ := os.Create(directory + "/" + filename)
+			data := []byte(body)
+			_, write_err := file.Write(data)
+			if write_err != nil {
+				return
+			}
+			response = []byte("HTTP/1.1 201 Created\r\nContent-Length:0\r\n\r\n")
 		} else {
 			content, error := os.ReadFile(directory + "/" + filename)
 			// fmt.Println(filename, content)
