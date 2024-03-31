@@ -39,7 +39,7 @@ func handleConnection(conn net.Conn) {
 	// fmt.Println(headers, req_path_method)
 	// fmt.Println(req_parts, reflect.TypeOf(req_parts), req_parts[1])
 	if req_path_method[1] == "/" {
-		response = []byte("HTTP/1.1 200 OK\r\nContent-Length: 13\r\nContent-Type: text/plain\r\n\r\nHello, world!")
+		response = []byte("HTTP/1.1 200 OK\r\nContent-Length: 13\r\nContent-Type: text/plain\r\n\r\n")
 
 	} else if strings.HasPrefix(req_path_method[1], "/echo/") {
 		path := strings.Split(req_path_method[1], "/echo/")
