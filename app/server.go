@@ -22,7 +22,7 @@ func getHeaders(req_parts []string) map[string]string {
 	return headers
 }
 
-func handleConnection(conn net.Conn) {
+func handleConnection(conn net.Conn, directory string) {
 	defer conn.Close()
 	var response []byte
 	buffer := make([]byte, 1024)
@@ -57,6 +57,17 @@ func handleConnection(conn net.Conn) {
 			message := "HTTP/1.1 200 OK\r\nContent-Length:" + fmt.Sprint(len(user_agent)) + "\r\nContent-Type: text/plain\r\n\r\n" + user_agent
 			response = []byte(message)
 		}
+	} else if strings.HasPrefix(req_path_method[1], "/files") {
+		_, filename, _ := strings.Cut(req_path_method[1], "/files")
+		content, error := os.ReadFile(directory + filename)
+		// fmt.Println(filename, content)
+		if error != nil {
+			response = []byte("HTTP/1.1 404 Not Found\r\nContent-Length: 11\r\nContent-Type: text/plain\r\n\r\nFile Found")
+		} else {
+			message := "HTTP/1.1 200 OK\r\nContent-Length:" + fmt.Sprint(len(content)) + "\r\nContent-Type: application/octet-stream\r\n\r\n" + string(content) + "\r\n"
+			response = []byte(message)
+		}
+
 	} else {
 		response = []byte("HTTP/1.1 404 Not Found\r\nContent-Length: 11\r\nContent-Type: text/plain\r\n\r\nNot Found")
 
@@ -74,6 +85,12 @@ func main() {
 
 	// Uncomment this block to pass the first stage
 	//
+	args := os.Args
+	// fmt.Println(args[1])
+	directory := "./"
+	if len(args) > 2 {
+		directory = args[2]
+	}
 	listener, err := net.Listen("tcp", "0.0.0.0:4221")
 	if err != nil {
 		fmt.Println("Failed to bind to port 4221")
@@ -89,7 +106,7 @@ func main() {
 			os.Exit(1)
 		}
 		// response := []byte("HTTP/1.1 200 OK\r\n\r\n test output")
-		go handleConnection(conn)
+		go handleConnection(conn, directory)
 
 	}
 }
